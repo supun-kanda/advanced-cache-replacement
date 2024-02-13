@@ -21,5 +21,8 @@ class LRUCache(Cache):
         else:
             if len(self.cache) >= self.capacity:
                 # Evict the least recently used key (first key in OrderedDict)
-                self.cache.popitem(last=False)
+                try:
+                    self.cache.popitem(last=False)
+                except KeyError:
+                    print("Key error occured", self.cache)
             self.cache[key] = value
