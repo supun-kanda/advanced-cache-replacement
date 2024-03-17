@@ -39,7 +39,6 @@ class FrozenCacheDev():
         return self.cache[key]
 
     def put(self, key, value, time_step):
-        address = -1
         if key in self.cache:
             # Update the value and move the key to the end to mark it as most recently used
             self.cache[key] = value
@@ -55,17 +54,14 @@ class FrozenCacheDev():
                 return address
 
             self.cache[key] = value
-        return address
+        return -2
     
     def get_fi_score(self, values, time_step):
         return (len(values) / self.capacity) + ((self.data_len - min(values)) / (self.data_len - time_step))
 
 
     def get_removable_address(self, request, time_step):
-        temp_map = self.future_map
-        remove_values_less_than(temp_map, time_step)
-        sorted_items = sorted(temp_map.items(), key=lambda x: len(x[1]), reverse=True)
-        self.future_map = OrderedDict(sorted_items)
+        remove_values_less_than(self.future_map, time_step)
 
         if request not in self.future_map:
             return -1
@@ -76,6 +72,6 @@ class FrozenCacheDev():
                 cache_future[key] = self.future_map[key]
             else:
                 return key
-                        
+
         fi_score = {key: self.get_fi_score(values, time_step) for key, values in cache_future.items()}
         return min(fi_score, key=fi_score.get)
