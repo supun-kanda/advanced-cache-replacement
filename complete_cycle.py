@@ -1,13 +1,19 @@
+
 from frozen_cache import FrozenCacheDev
 from proposed_cache import ProposedCache
+
 import sys
 import time
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Input, Embedding, LSTM, Dense, Dropout
 from tensorflow.keras.regularizers import l2
+from keras.callbacks import History
+import pickle
 
-file_name = sys.argv[1] if len(sys.argv) > 1 else 'web 07.trace'
+
+
+file_name = sys.argv[1] if len(sys.argv) > 1 else 'web07.trace'
 print('dataset: ', file_name)
 
 with open(file_name, 'rb') as file:
@@ -19,9 +25,10 @@ with open(file_name, 'rb') as file:
 
 add_space = max(data_set)
 
-for cache_cap in range(500,3100,500):
-   
+for cache_cap in range(2500,3100,500):
+
   cache = FrozenCacheDev(cache_cap, data_set)
+  str_cache_cap = str(cache_cap)
   cache_states = []
   evictions = []
   i = 0
@@ -51,8 +58,8 @@ for cache_cap in range(500,3100,500):
   inputs = np.array(cache_states)
   outputs = np.array(evictions)
 
-  np.save("resources/model_3_"+cache_cap+"_inputs.npy", inputs)
-  np.save("resources/model_3_"+cache_cap+"_outputs.npy", outputs)
+  np.save("model_3_"+str_cache_cap+"_inputs.npy", inputs)
+  np.save("model_3_"+str_cache_cap+"_outputs.npy", outputs)
 
   print('shapes input:',inputs.shape, ' output:', outputs.shape)
 
@@ -70,10 +77,14 @@ for cache_cap in range(500,3100,500):
 
   model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
 
-  model.fit(inputs, outputs, batch_size=64, epochs=100, validation_split=0.2)
+  history = model.fit(inputs, outputs, batch_size=64, epochs=100, validation_split=0.2)
 
-  model.save('resources/model_3_'+cache_cap+'.keras')
+  model.save('model_3_'+str_cache_cap+'.keras')
 
+  with open('model_results_3_'+str_cache_cap+'.pkl', 'wb') as file_pi:
+    pickle.dump(history.history, file_pi)
+
+  print('starting the evaluation')
   rates = []
   hits = 0
   misses = 0
@@ -92,10 +103,12 @@ for cache_cap in range(500,3100,500):
           hits += 1
 
   rates.append({
-      'hit_rate': hits / data_len,
-      'miss_rate': misses / data_len,
+      'hit_rate': hits / index,
+      'miss_rate': misses / index,
       'capacity': cache_cap
   })
 
   print(rates)
 
+  with open('rate_results_'+str_cache_cap+'.pkl', 'wb') as file_r:
+    pickle.dump(rates, file_r)

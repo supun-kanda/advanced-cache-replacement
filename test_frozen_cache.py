@@ -102,6 +102,17 @@ class TestFrozenCache(unittest.TestCase):
         value = self.frozen_cache.put(5,5,3)
         self.assertEqual(self.frozen_cache.future_map,  OrderedDict({2:[4,8], 3:[5,9], 4:[6,10],5:[7,11]}))
         self.assertEqual(value, 4)
+    
+    def test_get_fi_score(self):
+        self.frozen_cache = FrozenCacheDev(3, [2,3,4,5,2,3,4,5,2,3,4,5])
+        self.frozen_cache.put(2,2,0)
+        self.frozen_cache.put(3,3,1)
+        self.frozen_cache.put(4,4,2)
+        dict = OrderedDict({2:[4,8], 3:[5,9], 4:[6,10],5:[3,7,11]})
+        result = self.frozen_cache.get_fi_score(dict[2], 2)
+
+        self.assertEqual(result, 2/3 + 8/10)
+        self.assertEqual(self.frozen_cache.get_fi_score([0,4,8], 0), 2)
 
 if __name__ == '__main__':
     unittest.main()

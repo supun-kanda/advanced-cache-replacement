@@ -12,23 +12,29 @@ class ProposedCache():
             return None
         self.cache.move_to_end(key)
         return self.cache[key]
+    
 
     def put(self, key, value):
+
         if key in self.cache:
+            # Update the value and move the key to the end to mark it as most recently used
             self.cache[key] = value
             self.cache.move_to_end(key)
         else:
             if len(self.cache) >= self.capacity:
-                key = self.get_eviction_key(self.cache)
-                if(key>0):
-                  self.cache.pop(key)
-                  self.cache[key] = value
-                return
-            else:
-              self.cache[key] = value
+                address = self.get_removable_address(self.cache)
 
-    def get_eviction_key(self, cache):
+                if address >= 0:
+                    self.cache.pop(address)
+                    self.cache[key] = value
+
+                return address
+
+            self.cache[key] = value
+        return -2
+
+    def get_removable_address(self, cache):
       cache_keys = list(cache.keys())
-      predict_array = self.model.predict(np.array(cache_keys).reshape(1,500))
+      predict_array = self.model.predict(np.array(cache_keys).reshape(1, self.capacity), verbose = 0)
       predict_index = np.argmax(predict_array)
       return cache_keys[predict_index] if predict_index<self.capacity else -1
