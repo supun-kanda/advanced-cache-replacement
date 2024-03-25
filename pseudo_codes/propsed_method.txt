@@ -5,7 +5,7 @@ Class ProposedCache
         If key in cache
             Move key to the end of cache
 
-    Function put(key, value, time_step)
+    Function put(key, value)
         If key in cache
             Update cache[key] and move key to the end
         Else
