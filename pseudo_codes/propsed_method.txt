@@ -1,0 +1,27 @@
+Class ProposedCache
+    cache <- empty ordered dictionary
+
+    Function get(key)
+        If key in cache
+            Move key to the end of cache
+
+    Function put(key, value, time_step)
+        If key in cache
+            Update cache[key] and move key to the end
+        Else
+            If cache is at capacity
+                removable_address <- get_removable_address(cache)
+                If removable_address > 0
+                    remove removable_address from cache
+                    put (key,value) to cache end
+                return
+            put (key,value) to cache end
+
+    Function get_removable_address(cache)
+        cache_keys <- derive cache keys from the cache with the same order
+        eviction_array <- model.predict(cache_keys)
+        eviction_index <- max(eviction_array)
+        if eviction_index < cache_size
+            Return cache_keys[eviction_index]
+        Else
+            Return -1

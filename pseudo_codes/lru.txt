@@ -1,0 +1,16 @@
+Class LRU
+    cache <- empty ordered dictionary
+
+    Function get(key)
+        If key in cache
+            Move key to the end of cache
+
+    Function put(key, value)
+        If key in cache
+            Update cache[key] and move key to the end
+        Else
+            If cache is at capacity
+                remove first element from cache
+                put (key,value) to cache end
+                return
+            put (key,value) to cache end

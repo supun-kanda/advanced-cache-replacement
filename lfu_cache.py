@@ -1,44 +1,47 @@
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
+
 
 class LFUCache:
     def __init__(self, capacity):
         self.capacity = capacity
-        self.cache = {}  # Dictionary to store key-value pairs
-        self.frequency = defaultdict(int)  # Dictionary to store frequency of each key
-        self.min_freq = 0  # Minimum frequency observed in the cache
+        self.cache = {}  # Stores key-value pairs
+        self.frequency = defaultdict(OrderedDict)  # Stores keys by frequency
+        self.min_freq = 0  # Track the minimum frequency
+
+    def update_frequency(self, key):
+        key_frequence = self.cache[key][1]
+        self.frequency[key_frequence].pop(key)  # Remove key from current frequency level
+
+        new_key_frequence = key_frequence + 1
+
+        if not self.frequency[key_frequence] and self.min_freq == key_frequence:
+            self.min_freq = new_key_frequence
+
+        # Increase the frequency of the key and move it to the new frequency level
+        self.cache[key][1] = new_key_frequence
+        self.frequency[new_key_frequence][key] = None
 
     def get(self, key):
         if key not in self.cache:
-            return None
-        # Increment the frequency of the accessed key
-        self.frequency[key] += 1
-        # Update the minimum frequency if necessary
-        self.min_freq = min(self.min_freq, self.frequency[key])
-        return self.cache[key]
+            return -1
+        self.update_frequency(key)  # Update the frequency of the key
+        return self.cache[key][0]  # Return the value
 
     def put(self, key, value):
-        if self.capacity == 0:
+        if self.capacity <= 0:
             return
-        # If key already exists, update its value and increment its frequency
-        if key in self.cache:
-            self.cache[key] = value
-            self.frequency[key] += 1
-        else:
-            # Evict least frequently used key if cache is at capacity
-            if len(self.cache) >= self.capacity:
-                self.evict()
-            # Add new key-value pair to cache with frequency 1
-            self.cache[key] = value
-            self.frequency[key] = 1
-            # Reset minimum frequency to 1 for new key
-            self.min_freq = 1
 
-    def evict(self):
-        # Find the key(s) with the minimum frequency
-        keys_to_remove = [key for key in self.frequency if self.frequency[key] == self.min_freq]
-        # Remove the key(s) from the cache and frequency dictionary
-        for key in keys_to_remove:
-            del self.cache[key]
-            del self.frequency[key]
-        # Update the minimum frequency after eviction
-        self.min_freq += 1
+        if key in self.cache:
+            self.cache[key][0] = value  # Update the value
+            self.update_frequency(key)  # Update the frequency
+            return
+
+        if len(self.cache) >= self.capacity:
+            # Evict the least frequently used key
+            lfu_key, _ = self.frequency[self.min_freq].popitem(last=False)
+            self.cache.pop(lfu_key)
+
+        # Add new key-value pair to the cache and set its frequency to 1
+        self.cache[key] = [value, 1]
+        self.frequency[1][key] = None
+        self.min_freq = 1  # Reset the minimum frequency to 1

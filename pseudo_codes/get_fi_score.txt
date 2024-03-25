@@ -1,0 +1,5 @@
+Function get_fi_score(future_indexes, time_step)
+    frequency_score <- len(future_indexes)/cache_size
+    recency_score <- (dataset_length - minimum future index)/remaining steps
+    
+    Return frequency_score + recency_score

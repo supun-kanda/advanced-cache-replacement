@@ -1,0 +1,20 @@
+Function get_removable_address(request, time_step)
+    remove_values_less_than the time_step from the future_map
+
+    If request is not in self.future_map
+        Return -1
+
+    cache_future <- {}
+
+    For each key in cache
+        If key is in future_map
+            cache_future[key] <- self.future_map[key]
+        Else
+            Return key
+
+    fi_score <- {}
+
+    For each key, values in cache_future
+        fi_score[key] <- get_fi_score(values, time_step)
+
+    Return the key from fi_score with the minimum value

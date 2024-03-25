@@ -1,0 +1,32 @@
+class LFUCache
+    Method get(key)
+        If key is not in cache
+            Return -1
+        Else
+            Call update_frequency(key)
+            Return value associated with key from cache
+
+    Method put(key, value)
+        If key is in cache
+            Update the value for key in cache
+            Call update_frequency(key)
+            Return
+
+        If cache is at capacity
+            pop_key <- frequency_list[min_f_key]
+            cace.pop(pop_key)
+            
+        min_f_key <- 1
+        frequency_list[1][key] <- None
+        cache[key] <- [value, 1]
+
+    Method update_frequency(key)
+        key_frequency <- cache[key][1]
+        frequency[key_frequency].pop(key)
+
+        new_key_frequency <- key_frequency + 1
+        If frequency[key_frequency] is empty and key_frequency is min_freq
+            min_freq <- new_key_frequency
+        
+        cache[key][1] <- new_key_frequency
+        frequency[new_key_frequency][key] <- None
