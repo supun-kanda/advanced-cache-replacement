@@ -1,0 +1,12 @@
+cache <- Cache(capcacity, trained_model)
+
+hits <- 0
+misses <- 0
+for key in data_set:
+    If cache.get(key) is None:
+        cache.put(key, key)
+        increment misses
+    Else:
+        increment hits
+
+output hits / dataset_length

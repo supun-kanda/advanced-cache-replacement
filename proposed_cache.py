@@ -34,7 +34,7 @@ class ProposedCache():
         return -2
 
     def get_removable_address(self, cache):
-      cache_keys = list(cache.keys())
+      cache_keys = list(reversed(cache.keys()))
       predict_array = self.model.predict(np.array(cache_keys).reshape(1, self.capacity), verbose = 0)
       predict_index = np.argmax(predict_array)
       return cache_keys[predict_index] if predict_index<self.capacity else -1

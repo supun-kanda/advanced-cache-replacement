@@ -1,7 +1,6 @@
 from collections import defaultdict, OrderedDict
 
-
-class LFUCache:
+class LfuCache:
     def __init__(self, capacity):
         self.capacity = capacity
         self.cache = {}  # Stores key-value pairs
@@ -17,13 +16,12 @@ class LFUCache:
         if not self.frequency[key_frequence] and self.min_freq == key_frequence:
             self.min_freq = new_key_frequence
 
-        # Increase the frequency of the key and move it to the new frequency level
         self.cache[key][1] = new_key_frequence
         self.frequency[new_key_frequence][key] = None
 
     def get(self, key):
         if key not in self.cache:
-            return -1
+            return None
         self.update_frequency(key)  # Update the frequency of the key
         return self.cache[key][0]  # Return the value
 
@@ -37,11 +35,9 @@ class LFUCache:
             return
 
         if len(self.cache) >= self.capacity:
-            # Evict the least frequently used key
             lfu_key, _ = self.frequency[self.min_freq].popitem(last=False)
             self.cache.pop(lfu_key)
 
-        # Add new key-value pair to the cache and set its frequency to 1
         self.cache[key] = [value, 1]
         self.frequency[1][key] = None
         self.min_freq = 1  # Reset the minimum frequency to 1

@@ -25,7 +25,7 @@ with open(file_name, 'rb') as file:
 
 add_space = max(data_set)
 
-for cache_cap in range(2500,3100,500):
+for cache_cap in range(500,3100,500):
 
   cache = FrozenCacheDev(cache_cap, data_set)
   str_cache_cap = str(cache_cap)
@@ -46,7 +46,7 @@ for cache_cap in range(2500,3100,500):
         eviction = cache.put(key, key, index)
 
         if (eviction > 0) or (eviction == -1 and is_rerun is False):
-          evictions.append(cache_snapshot.index(eviction) if eviction > 0 else -1)
+          evictions.append(cache_snapshot.index(eviction) if eviction > 0 else cache_cap + 1)
           reversed(cache_snapshot)
           cache_states.append(cache_snapshot)
 
